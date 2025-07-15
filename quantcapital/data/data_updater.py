@@ -67,66 +67,7 @@ class TechnicalIndicators:
         }
 
 
-class DataSource:
-    """数据源接口（模拟实现）"""
-    
-    def get_stock_list(self) -> List[str]:
-        """获取股票列表"""
-        # 模拟返回A股股票代码
-        symbols = []
-        
-        # 沪市主板
-        for i in range(600000, 600100):
-            symbols.append(f"{i:06d}.SH")
-        
-        # 深市主板
-        for i in range(000001, 000100):
-            symbols.append(f"{i:06d}.SZ")
-            
-        # 创业板
-        for i in range(300001, 300050):
-            symbols.append(f"{i:06d}.SZ")
-        
-        return symbols
-    
-    def get_kline_data(self, symbols: List[str], frequency: str, 
-                      start_date: str, end_date: str) -> pd.DataFrame:
-        """获取K线数据（模拟实现）"""
-        logger.info(f"模拟获取K线数据: {len(symbols)}支股票, {frequency}, {start_date}-{end_date}")
-        
-        # 模拟生成K线数据
-        data = []
-        base_price = 10.0
-        
-        for symbol in symbols[:10]:  # 只模拟前10支股票
-            current_price = base_price + np.random.normal(0, 1)
-            
-            # 生成几天的数据
-            for i in range(5):
-                date = datetime.now() - timedelta(days=i)
-                
-                open_price = current_price + np.random.normal(0, 0.1)
-                high_price = open_price + abs(np.random.normal(0, 0.2))
-                low_price = open_price - abs(np.random.normal(0, 0.2))
-                close_price = open_price + np.random.normal(0, 0.1)
-                volume = int(np.random.uniform(1000000, 10000000))
-                amount = volume * close_price
-                
-                data.append({
-                    'symbol': symbol,
-                    'datetime': date,
-                    'open': round(open_price, 2),
-                    'high': round(high_price, 2),
-                    'low': round(low_price, 2),
-                    'close': round(close_price, 2),
-                    'volume': volume,
-                    'amount': round(amount, 2),
-                    'turnover': round(np.random.uniform(0.1, 5.0), 2)
-                })
-                
-                current_price = close_price
-        
-        return pd.DataFrame(data)
+from .akshare_source import AKShareDataSource
 
 
 class DataUpdater(EventHandler):
@@ -151,7 +92,8 @@ class DataUpdater(EventHandler):
         self.business_storage = SQLiteBusinessStorage(business_db_path)
         
         # 初始化数据源
-        self.data_source = DataSource()
+        data_source_config = config.get('data_source', {})
+        self.data_source = AKShareDataSource(data_source_config)
         
         # 技术指标计算器
         self.indicators = TechnicalIndicators()
@@ -218,11 +160,12 @@ class DataUpdater(EventHandler):
         symbols = self.business_storage.load_universe("default")
         
         if not symbols:
-            # 如果股票池为空，获取所有股票
-            all_symbols = self.data_source.get_stock_list()
-            # 保存默认股票池
-            self.business_storage.save_universe("default", all_symbols[:100])  # 限制数量
-            symbols = all_symbols[:100]
+            # 如果股票池为空，获取所有标的（股票+ETF+指数）
+            all_symbols = self.data_source.get_all_symbols()
+            # 保存默认股票池（限制数量避免首次下载过多）
+            symbols_to_save = all_symbols[:100]  # 先下载100个标的
+            self.business_storage.save_universe("default", symbols_to_save)
+            symbols = symbols_to_save
         
         return symbols
     
@@ -235,8 +178,16 @@ class DataUpdater(EventHandler):
             end_date = datetime.now().strftime('%Y-%m-%d')
             start_date = (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d')
             
+            # 频率映射到AKShare格式
+            freq_map = {
+                'H': '60',    # 小时线->60分钟线
+                'D': 'D',     # 日线
+                'W': 'W'      # 周线
+            }
+            ak_frequency = freq_map.get(frequency.value, 'D')
+            
             # 获取原始数据
-            df = self.data_source.get_kline_data(symbols, frequency.value, start_date, end_date)
+            df = self.data_source.get_kline_data(symbols, ak_frequency, start_date, end_date)
             
             if df.empty:
                 logger.warning(f"未获取到{frequency.value}数据")

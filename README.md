@@ -55,17 +55,38 @@
 ## 🚀 快速开始
 
 ### 1. 安装依赖
-
 ```bash
+# 克隆项目
+git clone <your-repo-url>
+cd quantcapital
+
+# 安装依赖
 pip install -r requirements.txt
+
+# 运行测试确保安装正确
+pytest tests/ -v
 ```
 
-### 2. 运行示例
-
+### 2. 快速体验（使用模拟数据）
 ```bash
-# 简单回测示例
-python examples/simple_backtest.py
+# 立即体验框架功能，无需下载数据
+python examples/quick_start.py
 ```
+
+### 3. 真实数据回测
+```bash
+# 1. 下载真实历史数据（需要等待几分钟）
+python examples/download_data.py
+
+# 2. 查看下载的数据
+python examples/check_data.py
+
+# 3. 运行真实数据回测
+python examples/run_backtest.py
+```
+
+### 4. 编写自己的策略
+查看 **用户入门手册.md** 了解详细的策略开发指南
 
 ### 3. 基本使用
 
