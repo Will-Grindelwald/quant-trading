@@ -5,5 +5,6 @@
 """
 
 from .portfolio_manager import PortfolioRiskManager
+from ..entities.account import Account
 
-__all__ = ['PortfolioRiskManager']
+__all__ = ['PortfolioRiskManager', 'Account']

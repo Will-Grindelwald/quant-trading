@@ -178,7 +178,8 @@ class TestMACrossStrategy:
                 high=price + 0.1,
                 low=price - 0.1,
                 close=price,
-                volume=1000000
+                volume=1000000,
+                amount=price * 1000000  # 添加成交额参数
             )
             bars.append(bar)
         

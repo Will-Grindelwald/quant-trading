@@ -71,6 +71,23 @@ class Position:
         
         self.quantity = new_quantity
     
+    def buy(self, quantity: int, price: float, commission: float = 0.0) -> None:
+        """买入操作（测试兼容方法）"""
+        self.update_position(quantity, price)
+    
+    def sell(self, quantity: int, price: float, commission: float = 0.0) -> float:
+        """卖出操作（测试兼容方法）"""
+        if quantity > self.quantity:
+            raise ValueError("卖出数量不能超过持仓数量")
+        
+        # 计算盈亏
+        pnl = quantity * (price - self.avg_price) - commission
+        
+        # 更新仓位
+        self.update_position(-quantity, price)
+        
+        return pnl
+    
     def __str__(self) -> str:
         """字符串表示"""
         direction = "多头" if self.is_long else "空头" if self.is_short else "空仓"

@@ -48,6 +48,7 @@ class Order:
     submitted_time: Optional[datetime] = None   # 提交时间
     filled_time: Optional[datetime] = None      # 成交时间
     filled_quantity: int = 0                    # 已成交数量
+    _total_filled_amount: float = 0.0           # 总成交金额（用于计算平均价格）
     
     def __post_init__(self):
         """验证订单参数"""
@@ -64,21 +65,34 @@ class Order:
         """检查订单是否完全成交"""
         return self.status == OrderStatus.FILLED
     
+    @property
     def remaining_quantity(self) -> int:
         """获取剩余未成交数量"""
         return self.quantity - self.filled_quantity
+    
+    @property
+    def avg_filled_price(self) -> float:
+        """获取平均成交价格"""
+        if self.filled_quantity == 0:
+            return 0.0
+        return self._total_filled_amount / self.filled_quantity
     
     def fill_order(self, fill_quantity: int, fill_price: float) -> None:
         """部分成交订单"""
         if fill_quantity <= 0:
             raise ValueError("成交数量必须大于0")
-        if fill_quantity > self.remaining_quantity():
+        if fill_quantity > self.remaining_quantity:
             raise ValueError("成交数量不能超过剩余数量")
             
         self.filled_quantity += fill_quantity
+        self._total_filled_amount += fill_quantity * fill_price
         
         if self.filled_quantity == self.quantity:
             self.status = OrderStatus.FILLED
             self.filled_time = datetime.now()
         else:
             self.status = OrderStatus.PARTIALLY_FILLED
+    
+    def fill(self, fill_quantity: int, fill_price: float, commission: float = 0.0) -> None:
+        """成交订单（测试兼容方法）"""
+        self.fill_order(fill_quantity, fill_price)

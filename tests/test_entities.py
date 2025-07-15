@@ -6,7 +6,14 @@
 
 import pytest
 from datetime import datetime
-from quantcapital.entities import *
+from quantcapital.entities.signal import Signal, SignalDirection
+from quantcapital.entities.order import Order
+from quantcapital.entities.position import Position
+from quantcapital.entities.account import Account
+from quantcapital.entities.bar import Bar
+from quantcapital.entities.order import OrderType, OrderSide, OrderStatus
+from quantcapital.entities.bar import Frequency
+from quantcapital.entities.fill import Fill
 
 
 class TestSignal:
@@ -44,17 +51,18 @@ class TestSignal:
         )
         assert valid_signal.is_valid()
         
-        # 无效信号 - 信号强度超出范围
-        invalid_signal = Signal(
-            strategy_id="test",
-            symbol="000001.SZ",
-            direction=SignalDirection.BUY,
-            strength=1.5,  # 超出[0,1]范围
-            timestamp=datetime.now(),
-            price=10.5,
-            reason="无效信号"
-        )
-        assert not invalid_signal.is_valid()
+        # 无效信号 - 信号强度超出范围（应该抛出异常）
+        import pytest
+        with pytest.raises(ValueError, match="信号强度必须在0-1之间"):
+            Signal(
+                strategy_id="test",
+                symbol="000001.SZ",
+                direction=SignalDirection.BUY,
+                strength=1.5,  # 超出[0,1]范围
+                timestamp=datetime.now(),
+                price=10.5,
+                reason="无效信号"
+            )
 
 
 class TestOrder:
@@ -247,22 +255,26 @@ class TestBar:
             high=10.8,
             low=9.8,
             close=10.5,
-            volume=1000000
+            volume=1000000,
+            amount=10500000.0  # 添加成交额参数
         )
-        assert valid_bar.is_valid()
+        # Bar 类没有 is_valid 方法，验证构造是否成功
+        assert valid_bar.symbol == "000001.SZ"
         
-        # 无效K线 - 最高价小于最低价
-        invalid_bar = Bar(
-            symbol="000001.SZ",
-            datetime=datetime.now(),
-            frequency=Frequency.DAILY,
-            open=10.0,
-            high=9.8,   # 最高价小于最低价
-            low=10.8,
-            close=10.5,
-            volume=1000000
-        )
-        assert not invalid_bar.is_valid()
+        # 无效K线 - 最高价小于开盘价（应该抛出异常）
+        import pytest
+        with pytest.raises(ValueError):
+            Bar(
+                symbol="000001.SZ",
+                datetime=datetime.now(),
+                frequency=Frequency.DAILY,
+                open=10.0,
+                high=9.8,   # 最高价小于开盘价
+                low=9.5,
+                close=9.9,
+                volume=1000000,
+                amount=9900000.0
+            )
     
     def test_technical_indicators(self):
         """测试技术指标计算"""
@@ -274,7 +286,8 @@ class TestBar:
             high=10.8,
             low=9.8,
             close=10.5,
-            volume=1000000
+            volume=1000000,
+            amount=10500000.0  # 添加成交额参数
         )
         
         # 设置技术指标

@@ -61,7 +61,7 @@ def event_engine():
     """事件引擎fixture"""
     engine = EventEngine()
     yield engine
-    if engine.running:
+    if engine._running:
         engine.stop()
 
 

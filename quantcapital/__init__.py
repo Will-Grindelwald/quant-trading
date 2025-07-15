@@ -14,4 +14,3 @@ from .data import DataHandler, DataUpdater
 from .strategy import BaseStrategy
 from .portfolio import PortfolioRiskManager, Account
 from .execution import ExecutionHandler
-from .report import ReportGenerator
