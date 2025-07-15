@@ -1,0 +1,30 @@
+# Python 编译缓存
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# 虚拟环境
+.venv/
+venv/
+env/
+
+# IDE 配置文件
+.idea/
+.vscode/
+
+# 编辑器备份文件
+*~
+.#*
+
+# 日志文件
+*.log
+
+# 数据文件和数据库文件
+data/
+*.db
+*.duckdb
+
+# 回测结果
+backtest_results.json
+
