@@ -27,6 +27,16 @@ public class OrderEvent extends Event {
     private Order order;
     
     /**
+     * 订单操作类型（NEW, MODIFY, CANCEL等）
+     */
+    private String orderAction;
+    
+    /**
+     * 相关信号ID或其他关联ID
+     */
+    private String relatedId;
+    
+    /**
      * 构造函数
      * 
      * @param timestamp 事件时间
@@ -35,6 +45,22 @@ public class OrderEvent extends Event {
     public OrderEvent(LocalDateTime timestamp, Order order) {
         super(EventType.ORDER, timestamp, order.getSymbol());
         this.order = order;
+    }
+    
+    /**
+     * 构造函数（带订单操作和关联ID）
+     * 
+     * @param timestamp 事件时间
+     * @param order 订单
+     * @param orderAction 订单操作
+     * @param relatedId 关联ID（如信号ID）
+     */
+    public OrderEvent(LocalDateTime timestamp, Order order, 
+                     com.quantcapital.entities.constant.OrderAction orderAction, String relatedId) {
+        super(EventType.ORDER, timestamp, order.getSymbol());
+        this.order = order;
+        this.orderAction = orderAction.name();
+        this.relatedId = relatedId;
     }
     
     @Override

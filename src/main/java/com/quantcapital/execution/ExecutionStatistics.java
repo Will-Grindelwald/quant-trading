@@ -65,6 +65,36 @@ public class ExecutionStatistics {
     }
     
     /**
+     * 记录成交
+     * 
+     * @param fill 成交信息
+     */
+    public void recordFill(com.quantcapital.entities.Fill fill) {
+        incrementFillCount();
+    }
+    
+    /**
+     * 记录拒绝
+     */
+    public void recordRejection() {
+        incrementRejectCount();
+    }
+    
+    /**
+     * 记录取消
+     */
+    public void recordCancellation() {
+        incrementCancelCount();
+    }
+    
+    /**
+     * 记录错误
+     */
+    public void recordError() {
+        incrementRejectCount(); // 错误也归类为拒绝
+    }
+    
+    /**
      * 获取成交率
      * 
      * @return 成交率（百分比）

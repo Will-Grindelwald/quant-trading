@@ -10,11 +10,14 @@ package com.quantcapital.entities.constant;
  * 信号强度级别枚举
  * 
  * 定义交易信号的强度级别，用于策略决策和仓位管理。
- * 强度级别从弱到强分为五个等级。
+ * 强度级别从弱到强分为七个等级。
  * 
  * @author QuantCapital Team
  */
 public enum SignalStrengthLevel {
+    
+    /** 非常弱信号 (10%) */
+    VERY_WEAK(0.1, "非常弱信号"),
     
     /** 弱信号 (20%) */
     WEAK(0.2, "弱信号"),
@@ -25,11 +28,17 @@ public enum SignalStrengthLevel {
     /** 中等信号 (60%) */
     AVERAGE(0.6, "中等信号"),
     
+    /** 温和信号 (60%) - 别名为MODERATE */
+    MODERATE(0.6, "温和信号"),
+    
     /** 较强信号 (80%) */
     ABOVE_AVERAGE(0.8, "较强信号"),
     
     /** 强信号 (100%) */
-    STRONG(1.0, "强信号");
+    STRONG(1.0, "强信号"),
+    
+    /** 非常强信号 (100%) - 别名为VERY_STRONG */
+    VERY_STRONG(1.0, "非常强信号");
     
     /** 信号强度值 (0.0-1.0) */
     private final double strength;
@@ -67,6 +76,7 @@ public enum SignalStrengthLevel {
      * @return 对应的级别
      */
     public static SignalStrengthLevel fromStrength(double strength) {
+        if (strength <= 0.1) return VERY_WEAK;
         if (strength <= 0.2) return WEAK;
         if (strength <= 0.4) return BELOW_AVERAGE;
         if (strength <= 0.6) return AVERAGE;

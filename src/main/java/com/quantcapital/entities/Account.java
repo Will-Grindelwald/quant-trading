@@ -133,6 +133,67 @@ public class Account {
     }
     
     /**
+     * 设置可用资金（主要用于账户状态更新）
+     * 注意：这个方法直接设置现金余额，会影响冻结资金计算
+     * 
+     * @param availableCash 可用资金
+     */
+    public void setAvailableCash(double availableCash) {
+        this.cash = availableCash + frozenCash;
+        lastUpdateTime = LocalDateTime.now();
+    }
+    
+    /**
+     * 获取总资产（现金 + 持仓市值）
+     * 注意：这个方法需要实时价格信息，在没有价格时使用成本价估算
+     * 
+     * @return 总资产
+     */
+    public double getTotalAssets() {
+        return getTotalAssets(null);
+    }
+    
+    /**
+     * 获取总资产（现金 + 持仓市值）
+     * 
+     * @param currentPrices 当前价格信息
+     * @return 总资产
+     */
+    public double getTotalAssets(Map<String, Double> currentPrices) {
+        double totalValue = cash; // 现金部分
+        
+        // 加上所有持仓的市值
+        for (Position position : positions.values()) {
+            if (currentPrices != null) {
+                Double currentPrice = currentPrices.get(position.getSymbol());
+                if (currentPrice != null) {
+                    totalValue += position.getCurrentMarketValue(currentPrice);
+                } else {
+                    // 如果没有当前价格，使用成本价估算
+                    totalValue += position.getMarketValue();
+                }
+            } else {
+                // 没有价格信息时使用成本价
+                totalValue += position.getMarketValue();
+            }
+        }
+        
+        return totalValue;
+    }
+    
+    /**
+     * 设置总资产（用于账户状态更新）
+     * 注意：这个方法只是更新缓存值，不会改变实际的现金和持仓
+     * 
+     * @param totalAssets 总资产
+     */
+    public void setTotalAssets(double totalAssets) {
+        // 这里我们不直接改变现金或持仓，只是记录这个值用于统计
+        // 实际的资产计算应该通过getTotalAssets()方法
+        lastUpdateTime = LocalDateTime.now();
+    }
+    
+    /**
      * 冻结资金
      * 
      * @param amount 冻结金额

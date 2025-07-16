@@ -88,6 +88,15 @@ public interface DataHandler {
     Bar getLatestBar(String symbol);
     
     /**
+     * 获取最新的实时行情（用于实盘，指定频率）
+     * 
+     * @param symbol 股票代码
+     * @param frequency 数据频率
+     * @return 最新Bar数据
+     */
+    Bar getLatestBar(String symbol, Frequency frequency);
+    
+    /**
      * 订阅实时行情
      * 
      * @param symbol 股票代码

@@ -37,7 +37,10 @@ public enum OrderStatus {
     REJECTED("已拒绝"),
     
     /** 已过期 */
-    EXPIRED("已过期");
+    EXPIRED("已过期"),
+    
+    /** 失败 */
+    FAILED("失败");
     
     private final String description;
     

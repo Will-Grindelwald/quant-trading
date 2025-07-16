@@ -2,6 +2,7 @@ package com.quantcapital.execution;
 
 import com.quantcapital.engine.EventEngine;
 import com.quantcapital.entities.Order;
+import com.quantcapital.entities.Fill;
 import com.quantcapital.entities.Bar;
 import com.quantcapital.entities.constant.OrderType;
 import com.quantcapital.entities.constant.OrderSide;
@@ -61,6 +62,12 @@ public class SimulatedExecutionHandler extends ExecutionHandler {
         /** 拒绝概率（极小） */
         public double rejectionProbability = 0.001; // 0.1%
         
+        /** 手续费率 */
+        public double commissionRate = 0.0003; // 0.03%
+        
+        /** 最低手续费 */
+        public double minCommission = 5.0; // 5元
+        
         /** 是否启用延迟执行 */
         public boolean enableDelayedExecution = false;
         
@@ -87,7 +94,7 @@ public class SimulatedExecutionHandler extends ExecutionHandler {
      * @param config 模拟配置
      */
     public SimulatedExecutionHandler(EventEngine eventEngine, SimulationConfig config) {
-        super("SimulatedExecution", eventEngine);
+        super(eventEngine);
         this.currentMarketData = new ConcurrentHashMap<>();
         this.config = config;
         this.random = new Random();
@@ -97,27 +104,25 @@ public class SimulatedExecutionHandler extends ExecutionHandler {
     }
     
     @Override
-    protected void doExecuteOrder(Order order) {
+    protected void executeOrder(Order order) {
         // 检查是否有当前市场数据
         Bar currentBar = currentMarketData.get(order.getSymbol());
         if (currentBar == null) {
-            rejectOrder(order, "缺少市场数据: " + order.getSymbol());
+            handleOrderRejected(order, "缺少市场数据: " + order.getSymbol());
             return;
         }
         
-        // 模拟随机拒绝
-        if (config.rejectionProbability > 0 && random.nextDouble() < config.rejectionProbability) {
-            rejectOrder(order, "模拟市场拒绝");
+        // 检查风险限制
+        if (!checkRiskLimits(order)) {
+            handleOrderRejected(order, "风险检查未通过");
             return;
         }
         
-        // 决定是否延迟执行
+        // 模拟网络延迟和执行延迟
         if (config.enableDelayedExecution) {
-            int delay = config.minExecutionDelayMs + 
-                       random.nextInt(config.maxExecutionDelayMs - config.minExecutionDelayMs + 1);
-            
-            scheduler.schedule(() -> executeOrderImmediately(order, currentBar), 
-                             delay, TimeUnit.MILLISECONDS);
+            int delayMs = config.minExecutionDelayMs + random.nextInt(config.maxExecutionDelayMs - config.minExecutionDelayMs);
+            scheduler.schedule(() -> executeOrderImmediately(order, currentBar),
+                    delayMs, TimeUnit.MILLISECONDS);
         } else {
             executeOrderImmediately(order, currentBar);
         }
@@ -241,11 +246,68 @@ public class SimulatedExecutionHandler extends ExecutionHandler {
         }
     }
     
+    /**
+     * 拒绝订单的私有方法
+     * 
+     * @param order 订单
+     * @param reason 拒绝原因
+     */
+    private void rejectOrder(Order order, String reason) {
+        handleOrderRejected(order, reason);
+    }
+    
+    /**
+     * 处理订单成交的私有方法
+     * 
+     * @param order 订单
+     * @param quantity 成交数量
+     * @param price 成交价格
+     */
+    private void processOrderFill(Order order, int quantity, double price) {
+        Fill fill = createFill(order, quantity, price);
+        handleOrderFilled(order, fill);
+    }
+    
+    /**
+     * 检查风险限制
+     * 
+     * @param order 订单
+     * @return 是否通过风险检查
+     */
+    private boolean checkRiskLimits(Order order) {
+        // 模拟随机拒绝
+        if (config.rejectionProbability > 0 && random.nextDouble() < config.rejectionProbability) {
+            return false;
+        }
+        
+        // 这里可以添加更多风险检查逻辑
+        return true;
+    }
+    
+    /**
+     * 获取活跃订单数量
+     * 
+     * @return 活跃订单数量
+     */
+    private int getActiveOrderCount() {
+        return getPendingOrderCount();
+    }
+    
     @Override
-    protected boolean doCancelOrder(Order order) {
+    protected double calculateCommission(int quantity, double price) {
+        // 计算模拟手续费
+        double amount = quantity * price;
+        double commissionRate = config.commissionRate;
+        double commission = amount * commissionRate;
+        
+        // 最低手续费限制
+        return Math.max(commission, config.minCommission);
+    }
+    
+    @Override
+    protected void doCancelOrder(Order order) throws Exception {
         // 模拟取消订单（总是成功）
         log.info("模拟取消订单: {}", order.getOrderId());
-        return true;
     }
     
     /**

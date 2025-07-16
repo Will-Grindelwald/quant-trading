@@ -19,7 +19,6 @@ import java.util.UUID;
  * @author QuantCapital Team
  */
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Fill {
@@ -72,6 +71,167 @@ public class Fill {
     
     /** 是否为模拟成交 */
     private boolean isSimulated;
+    
+    /**
+     * 获取执行时间（timestamp的别名方法）
+     * 
+     * @return 执行时间
+     */
+    public LocalDateTime getExecutionTime() {
+        return timestamp;
+    }
+    
+    /**
+     * 设置执行时间
+     * 
+     * @param executionTime 执行时间
+     */
+    public void setExecutionTime(LocalDateTime executionTime) {
+        this.timestamp = executionTime;
+    }
+    
+    /**
+     * 获取Builder实例
+     * 
+     * @return Builder实例
+     */
+    public static FillBuilder builder() {
+        return new FillBuilder();
+    }
+    
+    /**
+     * 自定义Builder类，支持executionTime方法
+     */
+    public static class FillBuilder {
+        private String fillId;
+        private String orderId;
+        private String symbol;
+        private OrderSide side;
+        private int quantity;
+        private double price;
+        private double amount;
+        private double commission;
+        private double stampTax;
+        private double transferFee;
+        private double totalFee;
+        private double netAmount;
+        private LocalDateTime timestamp;
+        private String strategyId;
+        private String exchangeTradeId;
+        private boolean isSimulated;
+        
+        public FillBuilder fillId(String fillId) {
+            this.fillId = fillId;
+            return this;
+        }
+        
+        public FillBuilder orderId(String orderId) {
+            this.orderId = orderId;
+            return this;
+        }
+        
+        public FillBuilder symbol(String symbol) {
+            this.symbol = symbol;
+            return this;
+        }
+        
+        public FillBuilder side(OrderSide side) {
+            this.side = side;
+            return this;
+        }
+        
+        public FillBuilder quantity(int quantity) {
+            this.quantity = quantity;
+            return this;
+        }
+        
+        public FillBuilder price(double price) {
+            this.price = price;
+            return this;
+        }
+        
+        public FillBuilder amount(double amount) {
+            this.amount = amount;
+            return this;
+        }
+        
+        public FillBuilder commission(double commission) {
+            this.commission = commission;
+            return this;
+        }
+        
+        public FillBuilder stampTax(double stampTax) {
+            this.stampTax = stampTax;
+            return this;
+        }
+        
+        public FillBuilder transferFee(double transferFee) {
+            this.transferFee = transferFee;
+            return this;
+        }
+        
+        public FillBuilder totalFee(double totalFee) {
+            this.totalFee = totalFee;
+            return this;
+        }
+        
+        public FillBuilder netAmount(double netAmount) {
+            this.netAmount = netAmount;
+            return this;
+        }
+        
+        public FillBuilder timestamp(LocalDateTime timestamp) {
+            this.timestamp = timestamp;
+            return this;
+        }
+        
+        /**
+         * 设置执行时间（设置timestamp字段的别名方法）
+         * 
+         * @param executionTime 执行时间
+         * @return Builder实例
+         */
+        public FillBuilder executionTime(LocalDateTime executionTime) {
+            this.timestamp = executionTime;
+            return this;
+        }
+        
+        public FillBuilder strategyId(String strategyId) {
+            this.strategyId = strategyId;
+            return this;
+        }
+        
+        public FillBuilder exchangeTradeId(String exchangeTradeId) {
+            this.exchangeTradeId = exchangeTradeId;
+            return this;
+        }
+        
+        public FillBuilder isSimulated(boolean isSimulated) {
+            this.isSimulated = isSimulated;
+            return this;
+        }
+        
+        public Fill build() {
+            Fill fill = new Fill();
+            fill.fillId = this.fillId;
+            fill.orderId = this.orderId;
+            fill.symbol = this.symbol;
+            fill.side = this.side;
+            fill.quantity = this.quantity;
+            fill.price = this.price;
+            fill.amount = this.amount;
+            fill.commission = this.commission;
+            fill.stampTax = this.stampTax;
+            fill.transferFee = this.transferFee;
+            fill.totalFee = this.totalFee;
+            fill.netAmount = this.netAmount;
+            fill.timestamp = this.timestamp;
+            fill.strategyId = this.strategyId;
+            fill.exchangeTradeId = this.exchangeTradeId;
+            fill.isSimulated = this.isSimulated;
+            return fill;
+        }
+    }
     
     /**
      * 构造函数

@@ -231,10 +231,9 @@ public class PortfolioManager implements EventHandler {
 
         this.account = Account.builder()
                 .accountId(accountId)
+                .initialCapital(initialCapital)
                 .cash(initialCapital)
-                .availableCash(initialCapital)
                 .frozenCash(0.0)
-                .totalAssets(initialCapital)
                 .build();
 
         log.info("账户初始化完成: ID={}, 初始资金={}", accountId, initialCapital);

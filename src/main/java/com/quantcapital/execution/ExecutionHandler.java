@@ -1,6 +1,7 @@
 package com.quantcapital.execution;
 
 import com.quantcapital.engine.EventEngine;
+import com.quantcapital.engine.EventHandler;
 import com.quantcapital.entities.Order;
 import com.quantcapital.entities.Fill;
 import com.quantcapital.entities.constant.EventType;
@@ -44,8 +45,24 @@ public abstract class ExecutionHandler {
         this.eventEngine = eventEngine;
         this.statistics = new ExecutionStatistics();
         
-        // 注册事件监听
-        eventEngine.register(EventType.ORDER, this::onOrderEvent);
+        // 注册事件监听 - 创建EventHandler实现
+        eventEngine.registerHandler(EventType.ORDER.name(), new EventHandler() {
+            @Override
+            public String getName() {
+                return ExecutionHandler.this.getClass().getSimpleName() + "-OrderHandler";
+            }
+            
+            @Override
+            public void handleEvent(Event event) throws Exception {
+                ExecutionHandler.this.onOrderEvent(event);
+            }
+            
+            @Override
+            public boolean canHandle(String eventType) {
+                return EventType.ORDER.name().equals(eventType);
+            }
+        });
+        
         log.info("执行处理器初始化完成: {}", this.getClass().getSimpleName());
     }
     
@@ -215,7 +232,7 @@ public abstract class ExecutionHandler {
      */
     protected void publishFillEvent(Fill fill) {
         FillEvent fillEvent = new FillEvent(LocalDateTime.now(), fill);
-        eventEngine.put(fillEvent);
+        eventEngine.publishEvent(fillEvent);
         
         log.debug("成交事件已发布: {}", fill.getFillId());
     }

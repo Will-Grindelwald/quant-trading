@@ -3,19 +3,25 @@ package com.quantcapital.data;
 import com.quantcapital.entities.Bar;
 import com.quantcapital.entities.constant.Frequency;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.Path;
-import org.apache.parquet.hadoop.ParquetFileReader;
-import org.apache.parquet.hadoop.util.HadoopInputFile;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -271,10 +277,21 @@ public class ParquetDataHandler implements DataHandler {
     
     @Override
     public Bar getLatestBar(String symbol) {
-        // 实盘模式下，从实时数据源获取
-        // 这里暂时返回最新的历史数据
-        List<Bar> bars = readKlineData(symbol, LocalDate.now().minusDays(10), LocalDate.now(), Frequency.DAILY);
-        return bars.isEmpty() ? null : bars.get(bars.size() - 1);
+        // 获取最新的日线数据
+        return getLatestBar(symbol, Frequency.DAILY);
+    }
+    
+    @Override
+    public Bar getLatestBar(String symbol, Frequency frequency) {
+        try {
+            // 实现获取最新Bar数据的逻辑
+            // 这里暂时返回null，实际实现需要根据具体的数据存储结构
+            log.warn("getLatestBar method not fully implemented for symbol: {}, frequency: {}", symbol, frequency);
+            return null;
+        } catch (Exception e) {
+            log.error("获取最新Bar数据失败: symbol={}, frequency={}", symbol, frequency, e);
+            return null;
+        }
     }
     
     @Override

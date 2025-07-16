@@ -27,6 +27,11 @@ public class SignalEvent extends Event {
     private Signal signal;
     
     /**
+     * 触发市场事件的ID
+     */
+    private String triggerMarketEventId;
+    
+    /**
      * 构造函数
      * 
      * @param timestamp 事件时间
@@ -35,6 +40,19 @@ public class SignalEvent extends Event {
     public SignalEvent(LocalDateTime timestamp, Signal signal) {
         super(EventType.SIGNAL, timestamp, signal.getSymbol());
         this.signal = signal;
+    }
+    
+    /**
+     * 构造函数（带触发市场事件ID）
+     * 
+     * @param timestamp 事件时间
+     * @param signal 交易信号
+     * @param triggerMarketEventId 触发的市场事件ID
+     */
+    public SignalEvent(LocalDateTime timestamp, Signal signal, String triggerMarketEventId) {
+        super(EventType.SIGNAL, timestamp, signal.getSymbol());
+        this.signal = signal;
+        this.triggerMarketEventId = triggerMarketEventId;
     }
     
     @Override
