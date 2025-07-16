@@ -1,16 +1,20 @@
 """
-量化交易框架 QuantCapital
+量化交易框架 QuantCapital - Python 数据服务
 
-模块化、事件驱动的量化交易框架，支持回测与实盘交易。
+专注于数据获取、处理、分析和报告生成。
+核心交易逻辑已迁移至 Java 实现。
 """
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 __author__ = "QuantCapital Team"
 
-# 核心模块导入
-from .entities import *
-from .engine import EventEngine
+# 数据处理模块
 from .data import DataHandler, DataUpdater
-from .strategy import BaseStrategy
-from .portfolio import PortfolioRiskManager, Account
-from .execution import ExecutionHandler
+
+# 基础实体（数据相关）
+from .entities import Bar, Frequency
+
+__all__ = [
+    'DataHandler', 'DataUpdater',
+    'Bar', 'Frequency'
+]

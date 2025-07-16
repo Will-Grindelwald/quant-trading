@@ -1,8 +1,7 @@
 package com.quantcapital.entities.event;
 
-import com.quantcapital.entities.constant.EventType;
 import com.quantcapital.entities.Fill;
-import com.quantcapital.entities.constant.OrderSide;
+import com.quantcapital.entities.constant.EventType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -12,8 +11,8 @@ import java.time.LocalDateTime;
 /**
  * 成交事件
  * 
- * 订单成交时触发的事件。
- * 组合风控模块和策略模块监听此事件，更新持仓和账户信息。
+ * 当订单成交时触发，包含成交的详细信息。
+ * 由执行模块生成，组合风控模块监听并更新账户状态。
  * 
  * @author QuantCapital Team
  */
@@ -22,29 +21,27 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class FillEvent extends Event {
     
-    /** 成交对象 */
+    /**
+     * 成交信息
+     */
     private Fill fill;
-    
-    /** 触发此成交的订单ID */
-    private String triggerOrderId;
     
     /**
      * 构造函数
      * 
      * @param timestamp 事件时间
-     * @param fill 成交对象
+     * @param fill 成交记录
      */
     public FillEvent(LocalDateTime timestamp, Fill fill) {
         super(EventType.FILL, timestamp, fill.getSymbol());
         this.fill = fill;
-        this.triggerOrderId = fill.getOrderId();
-        // 成交事件具有最高优先级，需要立即处理
-        this.setPriority(1);
     }
     
     @Override
     public String getDescription() {
-        return String.format("成交事件: %s", fill.toString());
+        return String.format("成交事件: %s %s %d@%.2f 净额:%.2f", 
+                fill.getSymbol(), fill.getSide(), fill.getQuantity(), 
+                fill.getPrice(), fill.getNetAmount());
     }
     
     /**
@@ -75,101 +72,26 @@ public class FillEvent extends Event {
     }
     
     /**
-     * 获取成交方向
-     * 
-     * @return 成交方向
-     */
-    public OrderSide getFillSide() {
-        return fill != null ? fill.getSide() : null;
-    }
-    
-    /**
-     * 获取成交数量
-     * 
-     * @return 成交数量
-     */
-    public int getFillQuantity() {
-        return fill != null ? fill.getQuantity() : 0;
-    }
-    
-    /**
-     * 获取成交价格
-     * 
-     * @return 成交价格
-     */
-    public double getFillPrice() {
-        return fill != null ? fill.getPrice() : 0.0;
-    }
-    
-    /**
      * 获取成交金额
      * 
      * @return 成交金额
      */
-    public double getFillAmount() {
+    public double getAmount() {
         return fill != null ? fill.getAmount() : 0.0;
     }
     
     /**
-     * 获取净成交金额（扣除费用后）
+     * 获取手续费
      * 
-     * @return 净成交金额
+     * @return 手续费
      */
-    public double getNetAmount() {
-        return fill != null ? fill.getNetAmount() : 0.0;
-    }
-    
-    /**
-     * 获取总费用
-     * 
-     * @return 总费用
-     */
-    public double getTotalFee() {
+    public double getCommission() {
         return fill != null ? fill.getTotalFee() : 0.0;
     }
     
-    /**
-     * 判断是否为买入成交
-     * 
-     * @return 是否为买入成交
-     */
-    public boolean isBuyFill() {
-        return fill != null && fill.isBuyFill();
-    }
-    
-    /**
-     * 判断是否为卖出成交
-     * 
-     * @return 是否为卖出成交
-     */
-    public boolean isSellFill() {
-        return fill != null && fill.isSellFill();
-    }
-    
-    /**
-     * 获取现金流影响
-     * 
-     * @return 现金流影响
-     */
-    public double getCashFlowImpact() {
-        return fill != null ? fill.getCashFlowImpact() : 0.0;
-    }
-    
-    /**
-     * 获取市值影响
-     * 
-     * @return 市值影响
-     */
-    public double getMarketValueImpact() {
-        return fill != null ? fill.getMarketValueImpact() : 0.0;
-    }
-    
-    /**
-     * 验证事件数据的完整性
-     * 
-     * @return 事件数据是否有效
-     */
-    public boolean isValidEvent() {
-        return fill != null && fill.isValid() && getTimestamp() != null;
+    @Override
+    public String toString() {
+        return String.format("FillEvent[%s %s]", 
+                getEventId(), fill != null ? fill.toString() : "null");
     }
 }

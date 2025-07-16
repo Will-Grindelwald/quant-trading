@@ -1,9 +1,7 @@
 package com.quantcapital.entities.event;
 
-import com.quantcapital.entities.constant.EventType;
 import com.quantcapital.entities.Order;
-import com.quantcapital.entities.constant.OrderAction;
-import com.quantcapital.entities.constant.OrderSide;
+import com.quantcapital.entities.constant.EventType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -13,8 +11,8 @@ import java.time.LocalDateTime;
 /**
  * 订单事件
  * 
- * 组合风控模块生成订单时触发的事件。
- * 执行模块监听此事件，进行订单的实际执行。
+ * 当需要执行订单时触发，包含订单的详细信息。
+ * 由组合风控模块生成，执行模块监听并处理。
  * 
  * @author QuantCapital Team
  */
@@ -23,48 +21,26 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class OrderEvent extends Event {
     
-    /** 订单对象 */
+    /**
+     * 订单信息
+     */
     private Order order;
-    
-    /** 触发此订单的信号ID（可选，用于追溯） */
-    private String triggerSignalId;
-    
-    /** 订单操作类型 */
-    private OrderAction action;
     
     /**
      * 构造函数
      * 
      * @param timestamp 事件时间
-     * @param order 订单对象
-     * @param action 订单操作类型
+     * @param order 订单
      */
-    public OrderEvent(LocalDateTime timestamp, Order order, OrderAction action) {
+    public OrderEvent(LocalDateTime timestamp, Order order) {
         super(EventType.ORDER, timestamp, order.getSymbol());
         this.order = order;
-        this.action = action;
-        // 订单事件具有较高优先级
-        this.setPriority(2);
-    }
-    
-    /**
-     * 构造函数（带触发信号ID）
-     * 
-     * @param timestamp 事件时间
-     * @param order 订单对象
-     * @param action 订单操作类型
-     * @param triggerSignalId 触发的信号ID
-     */
-    public OrderEvent(LocalDateTime timestamp, Order order, OrderAction action, String triggerSignalId) {
-        this(timestamp, order, action);
-        this.triggerSignalId = triggerSignalId;
     }
     
     @Override
     public String getDescription() {
-        return String.format("订单事件: %s %s %s", 
-                action.getDescription(), order.toString(), 
-                triggerSignalId != null ? "信号:" + triggerSignalId : "");
+        return String.format("订单事件: %s %s %d@%.2f", 
+                order.getSymbol(), order.getSide(), order.getQuantity(), order.getPrice());
     }
     
     /**
@@ -85,66 +61,9 @@ public class OrderEvent extends Event {
         return order != null ? order.getStrategyId() : null;
     }
     
-    /**
-     * 获取订单方向
-     * 
-     * @return 订单方向
-     */
-    public OrderSide getOrderSide() {
-        return order != null ? order.getSide() : null;
-    }
-    
-    /**
-     * 获取订单数量
-     * 
-     * @return 订单数量
-     */
-    public int getOrderQuantity() {
-        return order != null ? order.getQuantity() : 0;
-    }
-    
-    /**
-     * 获取订单价格
-     * 
-     * @return 订单价格
-     */
-    public double getOrderPrice() {
-        return order != null ? order.getPrice() : 0.0;
-    }
-    
-    /**
-     * 判断是否为新订单事件
-     * 
-     * @return 是否为新订单事件
-     */
-    public boolean isNewOrder() {
-        return action == OrderAction.NEW;
-    }
-    
-    /**
-     * 判断是否为取消订单事件
-     * 
-     * @return 是否为取消订单事件
-     */
-    public boolean isCancelOrder() {
-        return action == OrderAction.CANCEL;
-    }
-    
-    /**
-     * 判断是否为修改订单事件
-     * 
-     * @return 是否为修改订单事件
-     */
-    public boolean isModifyOrder() {
-        return action == OrderAction.MODIFY;
-    }
-    
-    /**
-     * 验证事件数据的完整性
-     * 
-     * @return 事件数据是否有效
-     */
-    public boolean isValidEvent() {
-        return order != null && action != null && getTimestamp() != null;
+    @Override
+    public String toString() {
+        return String.format("OrderEvent[%s %s]", 
+                getEventId(), order != null ? order.toString() : "null");
     }
 }

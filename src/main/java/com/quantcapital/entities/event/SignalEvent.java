@@ -1,8 +1,7 @@
 package com.quantcapital.entities.event;
 
-import com.quantcapital.entities.constant.EventType;
 import com.quantcapital.entities.Signal;
-import com.quantcapital.entities.constant.SignalDirection;
+import com.quantcapital.entities.constant.EventType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -12,8 +11,8 @@ import java.time.LocalDateTime;
 /**
  * 信号事件
  * 
- * 策略产生交易信号时触发的事件。
- * 组合风控模块监听此事件，进行信号处理和订单生成。
+ * 当策略产生交易信号时触发，包含信号的详细信息。
+ * 由策略模块生成，组合风控模块监听并转换为订单。
  * 
  * @author QuantCapital Team
  */
@@ -22,11 +21,10 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class SignalEvent extends Event {
     
-    /** 交易信号 */
+    /**
+     * 交易信号
+     */
     private Signal signal;
-    
-    /** 触发策略的市场事件ID（可选，用于追溯） */
-    private String triggerMarketEventId;
     
     /**
      * 构造函数
@@ -37,26 +35,13 @@ public class SignalEvent extends Event {
     public SignalEvent(LocalDateTime timestamp, Signal signal) {
         super(EventType.SIGNAL, timestamp, signal.getSymbol());
         this.signal = signal;
-        // 信号事件的优先级基于信号强度
-        this.setPriority(calculatePriority(signal.getStrength()));
-    }
-    
-    /**
-     * 构造函数（带触发事件ID）
-     * 
-     * @param timestamp 事件时间
-     * @param signal 交易信号
-     * @param triggerMarketEventId 触发的市场事件ID
-     */
-    public SignalEvent(LocalDateTime timestamp, Signal signal, String triggerMarketEventId) {
-        this(timestamp, signal);
-        this.triggerMarketEventId = triggerMarketEventId;
     }
     
     @Override
     public String getDescription() {
-        return String.format("策略信号: %s 来自策略%s %s", 
-                signal.toString(), signal.getStrategyId(), signal.getReason());
+        return String.format("信号事件: %s %s 强度:%.2f 价格:%.2f 原因:%s", 
+                signal.getSymbol(), signal.getDirection(), signal.getStrength(),
+                signal.getReferencePrice(), signal.getReason());
     }
     
     /**
@@ -78,12 +63,21 @@ public class SignalEvent extends Event {
     }
     
     /**
-     * 获取信号方向
+     * 判断是否为买入信号
      * 
-     * @return 信号方向
+     * @return 是否为买入信号
      */
-    public SignalDirection getSignalDirection() {
-        return signal != null ? signal.getDirection() : null;
+    public boolean isBuySignal() {
+        return signal != null && signal.isBuySignal();
+    }
+    
+    /**
+     * 判断是否为卖出信号
+     * 
+     * @return 是否为卖出信号
+     */
+    public boolean isSellSignal() {
+        return signal != null && signal.isSellSignal();
     }
     
     /**
@@ -104,72 +98,9 @@ public class SignalEvent extends Event {
         return signal != null ? signal.getReferencePrice() : 0.0;
     }
     
-    /**
-     * 判断是否为买入信号
-     * 
-     * @return 是否为买入信号
-     */
-    public boolean isBuySignal() {
-        return signal != null && signal.isBuySignal();
-    }
-    
-    /**
-     * 判断是否为卖出信号
-     * 
-     * @return 是否为卖出信号
-     */
-    public boolean isSellSignal() {
-        return signal != null && signal.isSellSignal();
-    }
-    
-    /**
-     * 判断是否为持有信号
-     * 
-     * @return 是否为持有信号
-     */
-    public boolean isHoldSignal() {
-        return signal != null && signal.isHoldSignal();
-    }
-    
-    /**
-     * 检查信号是否已过期
-     * 
-     * @param currentTime 当前时间
-     * @return 是否过期
-     */
-    public boolean isSignalExpired(LocalDateTime currentTime) {
-        return signal != null && signal.isExpired(currentTime);
-    }
-    
-    /**
-     * 根据信号强度计算事件优先级
-     * 信号强度越高，优先级越高（数值越小）
-     * 
-     * @param strength 信号强度 (0.0-1.0)
-     * @return 优先级 (1-10)
-     */
-    private int calculatePriority(double strength) {
-        if (strength >= 0.9) {
-            return 1; // 最高优先级
-        } else if (strength >= 0.8) {
-            return 2;
-        } else if (strength >= 0.6) {
-            return 3;
-        } else if (strength >= 0.4) {
-            return 5; // 中等优先级
-        } else if (strength >= 0.2) {
-            return 7;
-        } else {
-            return 9; // 低优先级
-        }
-    }
-    
-    /**
-     * 验证事件数据的完整性
-     * 
-     * @return 事件数据是否有效
-     */
-    public boolean isValidEvent() {
-        return signal != null && signal.isValid() && getTimestamp() != null;
+    @Override
+    public String toString() {
+        return String.format("SignalEvent[%s %s]", 
+                getEventId(), signal != null ? signal.toString() : "null");
     }
 }
