@@ -1,3 +1,11 @@
+# Maven 构建目录和产物
+target/
+
+# 数据文件和数据库文件
+data/
+*.db
+*.duckdb
+
 # Python 编译缓存
 __pycache__/
 *.pyc
@@ -12,19 +20,29 @@ env/
 # IDE 配置文件
 .idea/
 .vscode/
-
-# 编辑器备份文件
-*~
-.#*
+*.iws
+*.iml
+*.ipr
+.metadata
+.settings/
+.project
+.classpath
 
 # 日志文件
 *.log
 
-# 数据文件和数据库文件
-data/
-*.db
-*.duckdb
+# 操作系统生成的文件
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
 
-# 回测结果
-backtest_results.json
-
+# 临时文件
+*.tmp
+*.temp
+*.swp
+*.swo
+*~.nib

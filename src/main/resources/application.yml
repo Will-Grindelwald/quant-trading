@@ -1,0 +1,144 @@
+# QuantCapital Java交易引擎配置
+# 支持回测(backtest)和实盘(live)环境切换
+
+spring:
+  application:
+    name: quant-trading-java
+  profiles:
+    active: backtest
+  
+  # 序列化配置
+  jackson:
+    time-zone: Asia/Shanghai
+    date-format: yyyy-MM-dd HH:mm:ss
+    serialization:
+      write-dates-as-timestamps: false
+    default-property-inclusion: non_null
+
+# 服务器配置
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+# 日志配置
+logging:
+  level:
+    root: INFO
+    com.quantcapital: DEBUG
+    org.springframework: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/quant-trading.log
+    max-size: 100MB
+    max-history: 30
+
+# 监控配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+
+# 量化交易框架配置
+quantcapital:
+  # 数据配置 - 读取Python生成的数据
+  data:
+    root-path: "./data"  # Python数据存储根目录
+    parquet-path: "${quantcapital.data.root-path}/kline"  # Parquet文件路径
+    duckdb-url: "jdbc:duckdb:"  # DuckDB内存数据库
+    sqlite-path: "${quantcapital.data.root-path}/business.db"  # SQLite业务数据库
+    preload-days: 100  # 预加载历史数据天数
+  
+  # 事件引擎配置
+  engine:
+    queue-capacity: 10000  # 事件队列容量
+    worker-threads: 4      # 事件处理线程数
+    batch-size: 100        # 批处理大小
+    timeout-ms: 5000       # 超时时间(毫秒)
+  
+  # 交易账户配置
+  account:
+    initial-capital: 1000000.0  # 初始资金
+    account-id: "default_account"
+  
+  # 组合风控配置
+  portfolio:
+    max-position-percent: 5.0     # 单个标的最大仓位比例(%)
+    max-total-position-percent: 95.0  # 总仓位比例上限(%)
+    min-order-amount: 1000.0      # 最小下单金额
+    position-size-method: "fixed_amount"  # 仓位计算方法
+    default-position-size: 10000.0    # 默认仓位大小
+    
+    # 风控参数
+    risk:
+      max-daily-loss-percent: 2.0  # 日最大亏损比例(%)
+      max-drawdown-percent: 10.0   # 最大回撤比例(%)
+      max-correlation: 0.7         # 最大相关性
+  
+  # 执行引擎配置
+  execution:
+    slippage: 0.001              # 滑点(0.1%)
+    commission-rate: 0.0003      # 手续费率(0.03%)
+    delay-ms: 1000               # 执行延迟(毫秒)
+    max-retry-count: 3           # 最大重试次数
+  
+  # 策略配置
+  strategy:
+    max-strategies: 100          # 最大策略数量
+    signal-timeout-seconds: 30   # 信号超时时间(秒)
+
+---
+# 回测环境配置
+spring.config.activate.on-profile: backtest
+
+quantcapital:
+  mode: backtest
+  
+  # 回测特定配置
+  backtest:
+    start-date: "2023-01-01"
+    end-date: "2023-12-31"
+    universe: ["000001.SZ", "000002.SZ", "399001.SZ"]  # 测试标的
+    frequency: "daily"  # 回测频率: daily, hourly
+    
+  # 回测执行器配置
+  execution:
+    type: "simulated"
+    slippage: 0.001
+    commission-rate: 0.0003
+    delay-ms: 0  # 回测不需要延迟
+
+---
+# 实盘环境配置  
+spring.config.activate.on-profile: live
+
+quantcapital:
+  mode: live
+  
+  # 实盘特定配置
+  live:
+    trading-hours:
+      morning-start: "09:30:00"
+      morning-end: "11:30:00" 
+      afternoon-start: "13:00:00"
+      afternoon-end: "15:00:00"
+    
+    # 风控加强
+    risk:
+      position-check-interval: 60  # 仓位检查间隔(秒)
+      daily-loss-check: true       # 开启日内亏损检查
+  
+  # 实盘执行器配置
+  execution:
+    type: "live"
+    # MiniQMT配置预留
+    miniQMT:
+      server-url: "localhost:8001"
+      account-id: "your_account"
+      timeout-ms: 5000
