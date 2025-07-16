@@ -1,5 +1,9 @@
-package com.quantcapital.entities;
+package com.quantcapital.entities.event;
 
+import com.quantcapital.entities.constant.EventType;
+import com.quantcapital.entities.Order;
+import com.quantcapital.entities.constant.OrderAction;
+import com.quantcapital.entities.constant.OrderSide;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -142,34 +146,5 @@ public class OrderEvent extends Event {
      */
     public boolean isValidEvent() {
         return order != null && action != null && getTimestamp() != null;
-    }
-}
-
-/**
- * 订单操作类型枚举
- */
-enum OrderAction {
-    /** 新建订单 */
-    NEW("新建订单"),
-    
-    /** 取消订单 */
-    CANCEL("取消订单"),
-    
-    /** 修改订单 */
-    MODIFY("修改订单");
-    
-    private final String description;
-    
-    OrderAction(String description) {
-        this.description = description;
-    }
-    
-    public String getDescription() {
-        return description;
-    }
-    
-    @Override
-    public String toString() {
-        return description;
     }
 }

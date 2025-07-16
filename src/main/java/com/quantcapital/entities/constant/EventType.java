@@ -4,7 +4,7 @@
  * Copyright 2025 yuanfudao.com. All rights reserved.
  * FENBI.COM PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
-package com.quantcapital.entities;
+package com.quantcapital.entities.constant;
 
 /**
  * 事件类型枚举

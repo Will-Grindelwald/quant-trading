@@ -1,5 +1,8 @@
-package com.quantcapital.entities;
+package com.quantcapital.entities.event;
 
+import com.quantcapital.entities.constant.EventType;
+import com.quantcapital.entities.Signal;
+import com.quantcapital.entities.constant.SignalDirection;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;

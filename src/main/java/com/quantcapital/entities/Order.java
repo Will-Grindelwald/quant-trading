@@ -1,6 +1,10 @@
 package com.quantcapital.entities;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.quantcapital.entities.constant.OrderSide;
+import com.quantcapital.entities.constant.OrderStatus;
+import com.quantcapital.entities.constant.OrderType;
+import com.quantcapital.entities.constant.TimeInForce;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -280,40 +284,3 @@ public class Order {
                 symbol, side, orderType, quantity, price, status);
     }
 }
-
-/**
- * 订单类型枚举
- */
-enum OrderType {
-    /** 限价单 */
-    LIMIT("限价单"),
-    
-    /** 市价单 */
-    MARKET("市价单"),
-    
-    /** 止损单 */
-    STOP("止损单"),
-    
-    /** 止损限价单 */
-    STOP_LIMIT("止损限价单");
-    
-    private final String description;
-    
-    OrderType(String description) {
-        this.description = description;
-    }
-    
-    public String getDescription() {
-        return description;
-    }
-    
-    @Override
-    public String toString() {
-        return description;
-    }
-}
-
-
-
-
-

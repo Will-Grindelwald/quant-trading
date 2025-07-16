@@ -1,6 +1,8 @@
-package com.quantcapital.entities;
+package com.quantcapital.entities.event;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.quantcapital.entities.Bar;
+import com.quantcapital.entities.constant.EventType;
+import com.quantcapital.entities.constant.Frequency;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;

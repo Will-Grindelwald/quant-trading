@@ -1,6 +1,8 @@
 package com.quantcapital.entities;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.quantcapital.entities.constant.SignalDirection;
+import com.quantcapital.entities.constant.SignalStrengthLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
