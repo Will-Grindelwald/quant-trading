@@ -67,6 +67,33 @@ public enum Frequency {
     }
     
     /**
+     * 获取分钟数
+     * 
+     * @return 分钟数
+     */
+    public int getMinutes() {
+        return minutes;
+    }
+    
+    /**
+     * 获取频率代码
+     * 
+     * @return 频率代码
+     */
+    public String getCode() {
+        return code;
+    }
+    
+    /**
+     * 获取中文描述
+     * 
+     * @return 中文描述
+     */
+    public String getDescription() {
+        return description;
+    }
+    
+    /**
      * 获取对应的分钟数
      * 
      * @return 分钟数

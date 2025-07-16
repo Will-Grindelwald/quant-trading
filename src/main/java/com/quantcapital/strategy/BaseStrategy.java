@@ -201,4 +201,37 @@ enum StrategyStatus {
     public String toString() {
         return description;
     }
+enum StrategyStatus {
+    /** 未初始化 */
+    NOT_INITIALIZED("未初始化"),
+    
+    /** 已初始化 */
+    INITIALIZED("已初始化"),
+    
+    /** 运行中 */
+    RUNNING("运行中"),
+    
+    /** 已暂停 */
+    PAUSED("已暂停"),
+    
+    /** 已停止 */
+    STOPPED("已停止"),
+    
+    /** 错误状态 */
+    ERROR("错误状态");
+    
+    private final String description;
+    
+    StrategyStatus(String description) {
+        this.description = description;
+    }
+    
+    public String getDescription() {
+        return description;
+    }
+    
+    @Override
+    public String toString() {
+        return description;
+    }
 }

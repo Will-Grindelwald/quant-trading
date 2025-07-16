@@ -1,28 +1,28 @@
-/**
- * @(#)OrderSide.java, 7月 16, 2025.
- * <p>
- * Copyright 2025 yuanfudao.com. All rights reserved.
- * FENBI.COM PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
- */
 package com.quantcapital.entities;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
- * 买卖方向枚举
+ * 订单类型枚举
  * 
  * @author QuantCapital Team
  */
 @Getter
 @AllArgsConstructor
-public enum OrderSide {
+public enum OrderType {
     
-    /** 买入 */
-    BUY("买入"),
+    /** 市价单 */
+    MARKET("市价单"),
     
-    /** 卖出 */
-    SELL("卖出");
+    /** 限价单 */
+    LIMIT("限价单"),
+    
+    /** 止损单 */
+    STOP("止损单"),
+    
+    /** 止损限价单 */
+    STOP_LIMIT("止损限价单");
     
     private final String description;
     
