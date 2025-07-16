@@ -1,4 +1,4 @@
-package com.quantcapital.entities;
+package com.quantcapital.entities.constant;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

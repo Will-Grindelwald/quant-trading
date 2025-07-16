@@ -1,6 +1,7 @@
 package com.quantcapital.entities;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.quantcapital.entities.constant.Frequency;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

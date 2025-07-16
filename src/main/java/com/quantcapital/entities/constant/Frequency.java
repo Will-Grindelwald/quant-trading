@@ -1,6 +1,7 @@
-package com.quantcapital.entities;
+package com.quantcapital.entities.constant;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 /**
  * 数据频率枚举
@@ -9,6 +10,7 @@ import lombok.AllArgsConstructor;
  * 
  * @author QuantCapital Team
  */
+@Getter
 @AllArgsConstructor
 public enum Frequency {
     
@@ -47,60 +49,6 @@ public enum Frequency {
     
     /** 分钟数 */
     private final int minutes;
-    
-    /**
-     * 获取频率代码
-     * 
-     * @return 频率代码
-     */
-    public String getCode() {
-        return code;
-    }
-    
-    /**
-     * 获取中文描述
-     * 
-     * @return 中文描述
-     */
-    public String getDescription() {
-        return description;
-    }
-    
-    /**
-     * 获取分钟数
-     * 
-     * @return 分钟数
-     */
-    public int getMinutes() {
-        return minutes;
-    }
-    
-    /**
-     * 获取频率代码
-     * 
-     * @return 频率代码
-     */
-    public String getCode() {
-        return code;
-    }
-    
-    /**
-     * 获取中文描述
-     * 
-     * @return 中文描述
-     */
-    public String getDescription() {
-        return description;
-    }
-    
-    /**
-     * 获取对应的分钟数
-     * 
-     * @return 分钟数
-     */
-    public int getMinutes() {
-        return minutes;
-    }
     
     /**
      * 根据代码获取频率

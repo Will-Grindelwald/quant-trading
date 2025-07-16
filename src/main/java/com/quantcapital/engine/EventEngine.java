@@ -1,13 +1,17 @@
 package com.quantcapital.engine;
 
-import com.quantcapital.entities.Event;
+import com.quantcapital.entities.event.Event;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -59,104 +63,6 @@ public class EventEngine {
     private volatile double eventsPerSecond = 0.0;
 
     /**
-     * 事件订阅者 - 每个订阅者拥有独立的队列和处理线程
-     */
-    private static class EventSubscriber {
-        private final String name;
-        private final EventHandler handler;
-        private final BlockingQueue<Event> eventQueue;
-        private final Thread processingThread;
-        private final AtomicBoolean active = new AtomicBoolean(true);
-        private final AtomicLong processedCount = new AtomicLong(0);
-        private final AtomicLong failedCount = new AtomicLong(0);
-
-        public EventSubscriber(String name, EventHandler handler, int queueCapacity) {
-            this.name = name;
-            this.handler = handler;
-            this.eventQueue = new LinkedBlockingQueue<>(queueCapacity);
-            
-            // 创建独立的处理线程
-            this.processingThread = Thread.ofVirtual()
-                    .name("EventSubscriber-" + name)
-                    .start(this::processEvents);
-            
-            log.info("创建事件订阅者: {}", name);
-        }
-
-        public boolean offerEvent(Event event) {
-            if (!active.get()) {
-                return false;
-            }
-            
-            boolean offered = eventQueue.offer(event);
-            if (!offered) {
-                log.warn("订阅者 {} 队列已满，丢弃事件: {}", name, event);
-            }
-            return offered;
-        }
-
-        private void processEvents() {
-            log.info("订阅者 {} 处理线程启动", name);
-            
-            while (active.get() || !eventQueue.isEmpty()) {
-                try {
-                    Event event = eventQueue.poll(100, TimeUnit.MILLISECONDS);
-                    if (event != null) {
-                        processEvent(event);
-                    }
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    break;
-                } catch (Exception e) {
-                    log.error("订阅者 {} 处理事件异常", name, e);
-                }
-            }
-            
-            log.info("订阅者 {} 处理线程停止", name);
-        }
-
-        private void processEvent(Event event) {
-            try {
-                long startTime = System.nanoTime();
-                handler.handleEvent(event);
-                long duration = System.nanoTime() - startTime;
-                
-                processedCount.incrementAndGet();
-                
-                if (duration > 5_000_000_000L) { // 5秒超时警告
-                    log.warn("订阅者 {} 处理事件超时: {}ms", name, duration / 1_000_000);
-                }
-                
-            } catch (Exception e) {
-                log.error("订阅者 {} 处理事件失败: {}", name, event, e);
-                failedCount.incrementAndGet();
-            }
-        }
-
-        public void shutdown() {
-            active.set(false);
-            if (processingThread != null && processingThread.isAlive()) {
-                processingThread.interrupt();
-                try {
-                    processingThread.join(5000);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-            }
-        }
-
-        public Map<String, Object> getStatistics() {
-            return Map.of(
-                    "name", name,
-                    "active", active.get(),
-                    "queueSize", eventQueue.size(),
-                    "processedCount", processedCount.get(),
-                    "failedCount", failedCount.get()
-            );
-        }
-    }
-
-    /**
      * 初始化事件引擎
      */
     public void initialize() {
@@ -182,9 +88,7 @@ public class EventEngine {
             }
 
             // 启动事件分发线程
-            dispatcherThread = Thread.ofVirtual()
-                    .name("EventDispatcher")
-                    .start(this::dispatchLoop);
+            dispatcherThread = Thread.ofVirtual().name("EventDispatcher").start(this::dispatchLoop);
 
             // 启动性能监控
             CompletableFuture.runAsync(this::performanceMonitor);
@@ -211,9 +115,7 @@ public class EventEngine {
             }
 
             // 停止所有订阅者
-            subscribers.values().stream()
-                    .flatMap(List::stream)
-                    .forEach(EventSubscriber::shutdown);
+            subscribers.values().stream().flatMap(List::stream).forEach(EventSubscriber::shutdown);
 
             log.info("事件引擎停止完成");
             printStatistics();
@@ -285,14 +187,11 @@ public class EventEngine {
         }
 
         // 创建独立的订阅者
-        EventSubscriber subscriber = new EventSubscriber(
-                eventType + "-" + handler.getName(),
-                handler,
-                queueCapacity / 10 // 每个订阅者的队列容量为主队列的1/10
-        );
+        // 每个订阅者的队列容量为主队列的1/10
+        EventSubscriber subscriber =
+                new EventSubscriber(eventType + "-" + handler.getName(), handler, queueCapacity / 10);
 
-        subscribers.computeIfAbsent(eventType, k -> new CopyOnWriteArrayList<>())
-                .add(subscriber);
+        subscribers.computeIfAbsent(eventType, k -> new CopyOnWriteArrayList<>()).add(subscriber);
 
         log.info("注册事件处理器: {} -> {}", eventType, handler.getName());
     }
@@ -307,7 +206,7 @@ public class EventEngine {
         List<EventSubscriber> subscriberList = subscribers.get(eventType);
         if (subscriberList != null) {
             subscriberList.removeIf(subscriber -> {
-                if (subscriber.handler.equals(handler)) {
+                if (subscriber.getHandler().equals(handler)) {
                     subscriber.shutdown();
                     try {
                         handler.destroy();
@@ -370,10 +269,9 @@ public class EventEngine {
         }
 
         dispatchedEvents.incrementAndGet();
-        
+
         if (successCount < subscriberList.size()) {
-            log.warn("事件 {} 只成功分发给 {}/{} 个订阅者", 
-                    event.getEventId(), successCount, subscriberList.size());
+            log.warn("事件 {} 只成功分发给 {}/{} 个订阅者", event.getEventId(), successCount, subscriberList.size());
         }
     }
 
@@ -394,8 +292,8 @@ public class EventEngine {
                 }
 
                 log.debug("事件引擎性能: 分发速度:{:.2f}事件/秒 主队列大小:{} 总事件:{} 已分发:{} 丢弃:{}",
-                        eventsPerSecond, mainEventQueue.size(), totalEvents.get(), 
-                        dispatchedEvents.get(), droppedEvents.get());
+                        eventsPerSecond, mainEventQueue.size(), totalEvents.get(), dispatchedEvents.get(),
+                        droppedEvents.get());
 
                 lastStatsTime = currentTime;
 
@@ -424,8 +322,7 @@ public class EventEngine {
             log.info("  事件类型 {} 订阅者数量: {}", eventType, subscriberList.size());
             subscriberList.forEach(subscriber -> {
                 Map<String, Object> stats = subscriber.getStatistics();
-                log.info("    订阅者: {} 队列:{} 已处理:{} 失败:{}",
-                        stats.get("name"), stats.get("queueSize"),
+                log.info("    订阅者: {} 队列:{} 已处理:{} 失败:{}", stats.get("name"), stats.get("queueSize"),
                         stats.get("processedCount"), stats.get("failedCount"));
             });
         });
@@ -460,9 +357,7 @@ public class EventEngine {
         // 添加订阅者统计信息
         Map<String, Object> subscriberStats = new ConcurrentHashMap<>();
         subscribers.forEach((eventType, subscriberList) -> {
-            subscriberStats.put(eventType, subscriberList.stream()
-                    .map(EventSubscriber::getStatistics)
-                    .toList());
+            subscriberStats.put(eventType, subscriberList.stream().map(EventSubscriber::getStatistics).toList());
         });
         stats.put("subscribers", subscriberStats);
 

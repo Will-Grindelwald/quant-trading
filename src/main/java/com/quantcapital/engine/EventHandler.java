@@ -1,6 +1,6 @@
 package com.quantcapital.engine;
 
-import com.quantcapital.entities.Event;
+import com.quantcapital.entities.event.Event;
 
 /**
  * 事件处理器接口

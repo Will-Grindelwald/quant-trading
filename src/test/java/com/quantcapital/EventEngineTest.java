@@ -3,6 +3,15 @@ package com.quantcapital;
 import com.quantcapital.engine.EventEngine;
 import com.quantcapital.engine.EventHandler;
 import com.quantcapital.entities.*;
+import com.quantcapital.entities.constant.Frequency;
+import com.quantcapital.entities.constant.OrderSide;
+import com.quantcapital.entities.constant.SignalDirection;
+import com.quantcapital.entities.constant.TimerType;
+import com.quantcapital.entities.event.Event;
+import com.quantcapital.entities.event.FillEvent;
+import com.quantcapital.entities.event.MarketEvent;
+import com.quantcapital.entities.event.SignalEvent;
+import com.quantcapital.entities.event.TimerEvent;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -206,7 +215,7 @@ class EventEngineTest {
         eventEngine.registerHandler("FILL", normalHandler);
         
         // 创建成交事件
-        Fill testFill = new Fill("order-1", "000001.SZ", OrderSide.BUY, 
+        Fill testFill = new Fill("order-1", "000001.SZ", OrderSide.BUY,
                 100, 10.5, LocalDateTime.now(), "test-strategy");
         FillEvent fillEvent = new FillEvent(LocalDateTime.now(), testFill);
         
