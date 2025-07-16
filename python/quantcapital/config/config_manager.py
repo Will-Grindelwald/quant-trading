@@ -31,8 +31,8 @@ class ConfigManager:
         # 默认配置
         self._default_config = {
             'backtest': {
-                'data_root': './data',
-                'business_db_path': './data/business.db',
+                'data_root': './.data',
+                'business_db_path': './.data/business.db',
                 'initial_capital': 1000000.0,
                 'execution': {
                     'slippage': 0.001,
@@ -45,8 +45,8 @@ class ConfigManager:
                 }
             },
             'live_trading': {
-                'data_root': './data',
-                'business_db_path': './data/business.db',
+                'data_root': './.data',
+                'business_db_path': './.data/business.db',
                 'initial_capital': 1000000.0,
                 'execution': {
                     'max_order_value': 1000000,

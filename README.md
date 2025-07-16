@@ -96,7 +96,7 @@ cd python
 python examples/quick_start.py
 
 # 验证数据文件生成
-ls -la data/  # 应该看到parquet文件和数据库文件
+ls -la .data/  # 应该看到parquet文件和数据库文件
 ```
 
 ### 3. 启动交易引擎（Java端）

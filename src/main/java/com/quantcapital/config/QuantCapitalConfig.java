@@ -49,16 +49,16 @@ public class QuantCapitalConfig {
     @Data
     public static class DataConfig {
         /** 数据根目录 */
-        private String rootPath = "./data";
+        private String rootPath = "./.data";
         
         /** Parquet文件路径 */
-        private String parquetPath = "./data/kline";
+        private String parquetPath = "./.data/kline";
         
         /** DuckDB连接URL */
         private String duckdbUrl = "jdbc:duckdb:";
         
         /** SQLite数据库路径 */
-        private String sqlitePath = "./data/business.db";
+        private String sqlitePath = "./.data/business.db";
         
         /** 预加载历史数据天数 */
         private int preloadDays = 100;

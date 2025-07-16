@@ -67,7 +67,7 @@ SpringBoot 3 + JDK 21 + ZGC + Maven
 # 数据流向：Python → 存储介质 → Java
 Python数据服务:
   输出: Parquet文件 + DuckDB + SQLite
-  位置: /data/kline/, /data/business.db
+  位置: /.data/kline/, /.data/business.db
   
 Java交易引擎:
   输入: 读取上述存储

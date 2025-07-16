@@ -49,7 +49,7 @@ management:
 quantcapital:
   # 数据配置 - 读取Python生成的数据
   data:
-    root-path: "./data"  # Python数据存储根目录
+    root-path: "./.data"  # Python数据存储根目录
     parquet-path: "${quantcapital.data.root-path}/kline"  # Parquet文件路径
     duckdb-url: "jdbc:duckdb:"  # DuckDB内存数据库
     sqlite-path: "${quantcapital.data.root-path}/business.db"  # SQLite业务数据库
