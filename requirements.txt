@@ -1,0 +1,20 @@
+# 量化交易框架依赖
+
+# 数据处理
+pandas>=2.0.0
+numpy>=1.20.0
+
+# 数据存储
+pyarrow>=10.0.0  # for parquet
+duckdb>=0.8.0
+
+# 数据源
+akshare>=1.12.0
+
+# 测试依赖
+pytest>=7.0.0
+pytest-asyncio>=0.21.0
+
+# 可选依赖
+# matplotlib>=3.5.0  # 可视化（可选）
+# plotly>=5.0.0  # 交互式图表（可选）
