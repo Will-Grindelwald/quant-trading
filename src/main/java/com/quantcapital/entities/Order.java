@@ -91,6 +91,16 @@ public class Order {
     /** 取消原因（如果订单被取消） */
     private String cancelReason;
     
+    /** 拒绝原因（如果订单被拒绝） */
+    private String rejectedReason;
+    
+    /** 成交时间 */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime filledTime;
+    
+    /** 成交价格 */
+    private double filledPrice;
+    
     /**
      * 构造函数
      * 
@@ -276,6 +286,80 @@ public class Order {
         return status == OrderStatus.PENDING 
                 || status == OrderStatus.SUBMITTED 
                 || status == OrderStatus.PARTIALLY_FILLED;
+    }
+    
+    /**
+     * 设置拒绝原因
+     * 
+     * @param reason 原因
+     */
+    public void setRejectedReason(String reason) {
+        this.rejectedReason = reason;
+    }
+    
+    /**
+     * 设置取消原因
+     * 
+     * @param reason 原因
+     */
+    public void setCancelReason(String reason) {
+        this.cancelReason = reason;
+    }
+    
+    /**
+     * 更新部分成交信息
+     * 
+     * @param filledQuantity 成交数量
+     * @param filledPrice 成交价格
+     */
+    public void updatePartialFill(int filledQuantity, double filledPrice) {
+        this.filledQuantity += filledQuantity;
+        // 计算加权平均成交价
+        double totalValue = this.filledPrice * (this.filledQuantity - filledQuantity) + filledPrice * filledQuantity;
+        this.filledPrice = totalValue / this.filledQuantity;
+        
+        // 更新状态
+        if (this.filledQuantity >= this.quantity) {
+            this.status = OrderStatus.FILLED;
+        } else {
+            this.status = OrderStatus.PARTIALLY_FILLED;
+        }
+    }
+    
+    /**
+     * 设置成交时间
+     * 
+     * @param time 时间
+     */
+    public void setFilledTime(LocalDateTime time) {
+        this.filledTime = time;
+    }
+    
+    /**
+     * 设置成交数量
+     * 
+     * @param quantity 数量
+     */
+    public void setFilledQuantity(int quantity) {
+        this.filledQuantity = quantity;
+    }
+    
+    /**
+     * 设置成交价格
+     * 
+     * @param price 价格
+     */
+    public void setFilledPrice(double price) {
+        this.filledPrice = price;
+    }
+    
+    /**
+     * 获取剩余数量
+     * 
+     * @return 剩余数量
+     */
+    public int getRemainingQuantity() {
+        return quantity - filledQuantity;
     }
     
     @Override
