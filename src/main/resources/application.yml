@@ -95,10 +95,7 @@ quantcapital:
 
 ---
 # 回测环境配置
-spring:
-  config:
-    activate:
-      on-profile: backtest
+spring.config.activate.on-profile: backtest
 
 quantcapital:
   mode: backtest
@@ -119,10 +116,7 @@ quantcapital:
 
 ---
 # 实盘环境配置  
-spring:
-  config:
-    activate:
-      on-profile: live
+spring.config.activate.on-profile: live
 
 quantcapital:
   mode: live

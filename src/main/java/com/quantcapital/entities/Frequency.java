@@ -1,5 +1,7 @@
 package com.quantcapital.entities;
 
+import lombok.AllArgsConstructor;
+
 /**
  * 数据频率枚举
  * 
@@ -7,6 +9,7 @@ package com.quantcapital.entities;
  * 
  * @author QuantCapital Team
  */
+@AllArgsConstructor
 public enum Frequency {
     
     /** 1分钟 */
@@ -44,19 +47,6 @@ public enum Frequency {
     
     /** 分钟数 */
     private final int minutes;
-    
-    /**
-     * 构造函数
-     * 
-     * @param code 频率代码
-     * @param description 中文描述
-     * @param minutes 对应的分钟数
-     */
-    Frequency(String code, String description, int minutes) {
-        this.code = code;
-        this.description = description;
-        this.minutes = minutes;
-    }
     
     /**
      * 获取频率代码
