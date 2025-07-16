@@ -115,7 +115,7 @@ public abstract class Event {
 /**
  * 事件类型枚举
  */
-enum EventType {
+public enum EventType {
     /** 市场数据事件 */
     MARKET,
     
