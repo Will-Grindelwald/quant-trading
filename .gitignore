@@ -2,7 +2,7 @@
 target/
 
 # 数据文件和数据库文件
-data/
+.data/
 *.db
 *.duckdb
 
