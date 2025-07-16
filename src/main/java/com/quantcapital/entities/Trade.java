@@ -1,6 +1,7 @@
 package com.quantcapital.entities;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.quantcapital.entities.constant.TradeStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -87,28 +88,6 @@ public class Trade {
     
     /** 交易备注 */
     private String remarks;
-    
-    /**
-     * 交易状态枚举
-     */
-    public enum TradeStatus {
-        /** 开仓状态 */
-        OPEN("开仓"),
-        /** 已平仓 */
-        CLOSED("已平仓"),
-        /** 部分平仓 */
-        PARTIALLY_CLOSED("部分平仓");
-        
-        private final String description;
-        
-        TradeStatus(String description) {
-            this.description = description;
-        }
-        
-        public String getDescription() {
-            return description;
-        }
-    }
     
     /**
      * 构造函数（开仓）

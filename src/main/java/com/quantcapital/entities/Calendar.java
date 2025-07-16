@@ -3,6 +3,7 @@ package com.quantcapital.entities;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.*;
@@ -98,36 +99,6 @@ public class Calendar {
          */
         public boolean contains(LocalTime time) {
             return !time.isBefore(start) && !time.isAfter(end);
-        }
-    }
-    
-    /**
-     * 市场类型枚举
-     */
-    public enum MarketType {
-        /** A股市场 */
-        A_SHARE("A股", ZoneId.of("Asia/Shanghai")),
-        /** 港股市场 */
-        HK_STOCK("港股", ZoneId.of("Asia/Hong_Kong")),
-        /** 美股市场 */
-        US_STOCK("美股", ZoneId.of("America/New_York")),
-        /** 加密货币（24小时） */
-        CRYPTO("加密货币", ZoneId.of("UTC"));
-        
-        private final String description;
-        private final ZoneId timezone;
-        
-        MarketType(String description, ZoneId timezone) {
-            this.description = description;
-            this.timezone = timezone;
-        }
-        
-        public String getDescription() {
-            return description;
-        }
-        
-        public ZoneId getTimezone() {
-            return timezone;
         }
     }
     

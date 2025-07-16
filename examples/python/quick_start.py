@@ -180,7 +180,7 @@ def main():
         logger.error(f"❌ 演示执行失败: {e}", exc_info=True)
         print("\n💡 提示:")
         print("   1. 确保已安装所有依赖: pip install -r requirements.txt")
-        print("   2. 检查Python版本 >= 3.11")
+        print("   2. 检查Python版本 >= 3.13")
         print("   3. 如有问题，请查看日志或提交Issue")
     
     print("\n🎓 下一步:")

@@ -1,6 +1,7 @@
 package com.quantcapital.entities;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.quantcapital.entities.constant.UniverseType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -56,32 +57,6 @@ public class Universe {
     /** 是否启用 */
     @Builder.Default
     private boolean enabled = true;
-    
-    /**
-     * 股票池类型枚举
-     */
-    public enum UniverseType {
-        /** 静态股票池 */
-        STATIC("静态"),
-        /** 动态股票池 */
-        DYNAMIC("动态"),
-        /** 指数成分股 */
-        INDEX("指数"),
-        /** 行业股票池 */
-        SECTOR("行业"),
-        /** 自定义股票池 */
-        CUSTOM("自定义");
-        
-        private final String description;
-        
-        UniverseType(String description) {
-            this.description = description;
-        }
-        
-        public String getDescription() {
-            return description;
-        }
-    }
     
     /**
      * 构造函数
